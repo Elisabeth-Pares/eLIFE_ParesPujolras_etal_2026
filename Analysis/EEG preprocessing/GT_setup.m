@@ -89,13 +89,6 @@ exp.filter.lowerbound = 0.1; % When 0.1, files are labelled f01; when 0.01, file
 exp.filter.upperbound = 40;
 exp.filter.order = 8;
 
-%Labels for intermediate preprocessing
-if exp.filter.lowerbound == 0.01
-    exp.filterLab = 'f';
-elseif exp.filter.lowerbound == 0.1
-    exp.filterLab = 'f01';
-end
-
 % Epochs 
 exp.respEpoch= [-2, 1];
 exp.epochs = {'P1', 'RL'};% Trigger parameters
