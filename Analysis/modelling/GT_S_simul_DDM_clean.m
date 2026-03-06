@@ -294,14 +294,15 @@ for c=condIdx(1:end)
                         if gapDur ~= 0
                             decayEnd= min(upto+pars.stepAfterOffset, p2Idx(1));
                             temp = DVtt; 
-                            temp(upto+[1:pars.stepAfterOffset]) = DVtt(upto)-[1:pars.stepAfterOffset]/(pars.stepAfterOffset)*DVtt(upto);%+randn(1,pars.stepAfterbndT)*s*sqrt(dt);
-                            newDVtt(upto+1:decayEnd) = temp(upto+1:decayEnd);
+                            temp(upto+[1:pars.stepAfterOffset]) = DVtt(upto+1)-[1:pars.stepAfterOffset]/(pars.stepAfterOffset)*DVtt(upto+1);%+randn(1,pars.stepAfterbndT)*s*sqrt(dt);
+                            newDVtt(upto:decayEnd) = temp(upto:decayEnd);
                             if decayEnd<p2Idx(1)
-                                newDVtt(decayEnd+1:p2Idx(1)) = 0;
-                                 offset = max(decayEnd, p2Idx(1)+1);
-                                 newDVtt(p2Idx(1)+1:end) = newDVtt(p2Idx(1)+1:end)-newDVtt(offset);
+                                newDVtt(decayEnd+1:p2Idx(1)-1) = 0;
+                                 offset = max(decayEnd, p2Idx(1)-1);
+                                 newDVtt(p2Idx(1):end) = DVtt(p2Idx(1):end)-DVtt(offset);
                             else
-                                 newDVtt(p2Idx(1)+1:end) = newDVtt(p2Idx(1)+1:end)-newDVtt(p2Idx(1));
+                                offset = DVtt(p2Idx(1)) - newDVtt(p2Idx(1));
+                                newDVtt(p2Idx(1)+1:end) = newDVtt(p2Idx(1)+1:end)-offset;
                             end
                             clear offset; clear decayEnd; 
                         end

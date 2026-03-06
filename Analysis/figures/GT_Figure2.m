@@ -48,7 +48,7 @@ for ee = 1:2 %For both experiments
                     baselines = nanmean(allP.(plt.epoch).(thisGrouping).(dataTag).sl(:,[1.3*200:1.5*200],:),2).^factor;
                     data =(allP.(plt.epoch).(thisGrouping).(dataTag).sl).^factor;%-baselines);
                 end
-                newData(d,:,:) = squeeze(nanmean(data([exp.movCluster(1,chanSel)],:,:),1))-squeeze(nanmean(data([exp.movCluster(2,chanSel)],:,:),1)); %L-R
+                newData(d,:,:) = squeeze(nanmean(data([exp.movCluster(1,chanSel)],:,:),1))-squeeze(nanmean(data([exp.movCluster(2,chanSel)],:,:),1)); %L-R (C3-C4)
                 dataTopo(d,g,:,:,:) = squeeze(nanmean(data(:,1.5*200:2.6*200,:),2));
                 
                 endPoint = round([0.4 + exp.gapDur{exp.thisExp}(g) + 0.70+1.5]*200); %Plot up to the earlies time the lead-out dots might have occurred 
