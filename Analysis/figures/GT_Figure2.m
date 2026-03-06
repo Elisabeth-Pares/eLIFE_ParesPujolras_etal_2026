@@ -149,13 +149,12 @@ for ee = 1:2 %For both experiments
     xlims = [1.3,4.5]*200; plt.epoch = 'P1'; e = 1;     plt.font = 11;
     plt.baseline = 0; ylims = [-5 20];
     f = figure
-    data_allC = [];
+    data_allC = []; 
     plt.RIDE = 0;    %Possibility to clean colour-evoked VEPs using RIDE (not used in paper)
     plt.minusP1 = 0; %Remove P1 activity to compute CPP-P2/P1 amplitude ratio by subtracting P1 activity from longest gap condition (not used for this figure)
     
     %%Use if loading the file with ALL channels
     chans = exp.cppChannels; %CPP channels: [4,32,31,30,21,17,18,5,19,20];
-%     chans = 1; %Because we load the file with selected channels only 
     
     %% Plot
     %Load dummy EEG to have scalp locations
@@ -603,7 +602,6 @@ for e = 1:2
     preP2 = round([(exp.gapDur{1}(3)+1.5+0.2-0.1)*200: (exp.gapDur{1}(3) +1.5+0.2)*200]);
     p2Pow_m{e} = squeeze(nanmean(data(preP2,:)));
     p2Pow_sem{e} = squeeze(nanstd(nanmean(data(preP2,:)))./sqrt(size(data,2)));
-%     xline([preP2(1),preP2(end)]-1.3*200, 'color', thisCol);
      
     xline(plt.gapShades{e}(g+1,1)*ds, 'color', thisCol, 'linewidth', 2);
    
