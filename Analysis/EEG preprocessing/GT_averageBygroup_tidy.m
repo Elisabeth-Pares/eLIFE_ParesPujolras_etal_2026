@@ -17,11 +17,8 @@ if strcmp(par.dataType, 'ERP')
     sr = 512; %Original sampling rate
     
 else
-    if strcmp(par.epoch, 'P1')% == 1
-        filename = [exp.tfapath, '/Power_DS_csd_preproc_' par.epoch '_' exp.thisExpCode '_P' num2str(sub) '._short.mat'];
-    else
-        filename = [exp.tfapath, '/Power_DS_csd_preproc_' par.epoch '_' exp.thisExpCode '_P' num2str(sub) '..mat'];
-    end
+
+    filename = [exp.tfapath, '/Power_DS_csd_preproc_' par.epoch '_' exp.thisExpCode '_P' num2str(sub) '..mat'];
     
     load([filename]);
     if strcmp(par.band, 'alpha');
@@ -36,7 +33,6 @@ else
 end
 %Check that sumData and epochs align
 % assert(size(thisData, 3) == height(EEG.sumData))
-
 if strcmp(par.epoch, 'RL')
     if size(thisData, 3) > height(EEG.sumData) %One extra response
         filename = ['csd_preproc_P1_' exp.thisExpCode '_P' num2str(sub) '.set'];
@@ -58,21 +54,6 @@ if strcmp(par.epoch, 'RL')
     clear EEG2; clear e;
 end
 assert(size(thisData, 3) == height(EEG.sumData))
-
-% Add column to indicate whether trial is repetition from previous one
-for i = 2:height(EEG.sumData);
-    if EEG.sumData.keyCode(i) == EEG.sumData.keyCode(i-1)
-        if EEG.sumData.block(i) == EEG.sumData.block(i-1)
-            EEG.sumData.repetition(i) = 1;
-        else
-            EEG.sumData.repetition(i) = NaN;
-            EEG.sumData.repetition(1) = NaN;
-        end
-    else
-        EEG.sumData.repetition(i) = 0;
-    end
-end
-
 
 allRemoved = [];
 indices = unique(EEG.sumData.trial);
@@ -196,23 +177,7 @@ if par.average == 1
                                     
                                     allP.(par.epoch).(tag).(thisTag).nTrials(:,id) = sum(idx); %Save number of trials per condition
                                     
-                                    %Save only CPP channel averages (lighter)
-                                    if ~isfield(cppAll, par.epoch); cppAll.(par.epoch) = struct(); end
-                                    if ~isfield(cppAll.(par.epoch), tag); cppAll.(par.epoch).(tag) = []; end
-                                    if ~isfield(cppAll.(par.epoch).(tag), thisTag); cppAll.(par.epoch).(tag).(thisTag) = []; end
-                                    if ~isfield(cppAll.(par.epoch).(tag).(thisTag), 'sl'); cppAll.(par.epoch).(tag).(thisTag).sl = repmat(NaN,1,size(thisData,2)); end
-                                    
-                                    if strcmp(par.dataType, 'ERP')
-                                    if sum(idx)>1 & ~strcmp(par.epoch, 'RL')
-                                        cppAll.(par.epoch).(tag).(thisTag).sl(:,:,id) = nanmean(nanmean(thisData(exp.cppChans,:,idx),3),1); %Average across selected trials
-                                    else
-                                        cppAll.(par.epoch).(tag).(thisTag).sl(:,:,id) = repmat(NaN,1,size(thisData,2)); %If only one trial, set to NaN
-                                    end
-                                    
-                                    
-                                    cppAll.(par.epoch).(tag).(thisTag).nTrials(:,id) = sum(idx); %Save number of trials per condition
-                                    end
-                                    
+                                                                     
                                 end
                                 
                             end

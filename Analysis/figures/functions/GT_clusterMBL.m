@@ -5,7 +5,7 @@ function [cluster] = GT_clusterMBL(exp,permData)
 
 cfg_dat = struct;
 chans = [1]; %Motor beta lateralisation
-load('chanlocsBioSemi_128_noext.mat') %Load channel locations
+load('chanlocsBioSemi_128_ext8.mat') %Load channel locations
 
 cfg_dat.label       = {chanlocs.labels};  %Channel locations; (exp.CPPCluster_small)
 cfg_dat.label       = cfg_dat.label(chans);  %Channel locations; (exp.CPPCluster_small)

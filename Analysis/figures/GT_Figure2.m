@@ -2,7 +2,6 @@
 % Plots grand-averaged traces of MBL, CPP & occipital alpha in Figure 2. 
 % Also plots bottom panel in Fig. S9
 
-
 %% MBL - Figure 2A
 for ee = 1:2 %For both experiments
     exp.thisExp = ee; %Experiment to analyse
@@ -12,13 +11,13 @@ for ee = 1:2 %For both experiments
 
     %Load dummy EEG to have scalp locations
     EEG = pop_loadset([exp.filepath '/csd_preproc_P1_' exp.thisExpCode '_P2.set']);
-    %Load ERP average data
-    load(['C:\Users\elisa\Desktop\GapsTask\' exp.thisExpName '\Data\plot data\' exp.thisExpCode '_P1_allP_TFA_average_beta_np_gap_dir_acc_.mat'])
+    %Load ERP/TF average data
+    load(['C:\Users\elisa\Desktop\GapsTask\' exp.thisExpName '\Data\plot data\' exp.thisExpCode '_P1_allP_TFA_average_beta.mat'])
     
     plt.epoch = 'P1'; %Locked to stimulus onset
     plt.font = 11;
-    par.db = 1; %DB transform power data
-    ds = (200/512); %Downsample (MBL data are 200Hz)
+    par.db = 1;     %DB transform power data
+    ds = (200/512); %Consider downsampling for times (MBL data are 200Hz)
     thisGrouping = 'np_gap_dir_acc_' %Data are sorted by gap duration, dot direction and accuracy
     if par.db == 0, ylims = [-2.75 2.75]; else ylims = [-2.75,2.75]; end %Plotting parameters
     e=1;
@@ -26,8 +25,8 @@ for ee = 1:2 %For both experiments
     f = figure;
     f.Units = 'centimeters';
     f.OuterPosition = [0.25 0.35 11 9];
-    factor = 2; %Beta data were extracted as amplitude; need to convert to power by squaring values
-    chanSel = [3];
+    factor = 2;    %Beta data were extracted as amplitude; need to convert to power by squaring values
+    chanSel = [3]; %Take only channels 115 (C3) and 54 (C4)
     for acc = 1:2
         for g = 1:length(exp.gapDur{exp.thisExp}) %Longest gap only!
             for d = 1:2
@@ -40,7 +39,7 @@ for ee = 1:2 %For both experiments
                 if acc == 1; lineType = '--'; else lineType = '-'; end
                 
                 %Compute lateralisation based on cluster of left/right hemisphere electrodes
-                dataTag = ['twoPulse' thisGap  thisDir thisAcc];
+                dataTag = ['twoPulse' thisGap thisDir thisAcc];
                 
                 if par.db == 1; unitTag = '(dB)';
                     baselines = nanmean(allP.(plt.epoch).(thisGrouping).(dataTag).sl(:,[1.3*200:1.5*200],:),2).^factor;
@@ -139,7 +138,7 @@ end
 
 %% CPP
 % Plot CPP across 4 conditions, for ALL delays
-for ee = 2 %For both experiments
+for ee = 1:2 %For both experiments
     exp.thisExp = ee; %Experiment to analyse
     [exp, plt]  = GT_setup(exp);
     exp.sub_id{1}            = [1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; % P8 excluded because only 4 blocks were recorded.
@@ -168,7 +167,7 @@ for ee = 2 %For both experiments
 %     RIDE = RIDE.allP;
     
     %Load ERP average data
-    load(['C:\Users\elisa\Desktop\GapsTask\' exp.thisExpName '\Data\plot data\' exp.thisExpCode '_P1_allP_ERP_averageData_cpp.mat'])
+    load(['C:\Users\elisa\Desktop\GapsTask\' exp.thisExpName '\Data\plot data\' exp.thisExpCode '_P1_allP_ERP_averageData.mat'])
     
     %%
     peak_cpp1 = []; peak_cpp2 = [];
@@ -188,8 +187,7 @@ for ee = 2 %For both experiments
         rideTag = thisGap;
         baselines = nanmean(allP.(plt.epoch).(thisGrouping).(dataTag).sl(:,round(1.3*sr):round(1.5*sr),:),2);
         data =((allP.(plt.epoch).(thisGrouping).(dataTag).sl)-baselines);
-%         baselines = nanmean(cppAll.(plt.epoch).(thisGrouping).(dataTag).sl(:,round(1.3*sr):round(1.5*sr),:),2);
-%         data =((cppAll.(plt.epoch).(thisGrouping).(dataTag).sl)-baselines);
+
         
         %To plot topography at peak of gap = 0;
         if g == 1;
@@ -199,8 +197,6 @@ for ee = 2 %For both experiments
         data = squeeze(nanmean(data([chans],:,:),1));
         dataLong = ((allP.(plt.epoch).(thisGrouping).(longTag).sl)-baselines);
         dataLong = squeeze(nanmean(dataLong([chans],:,:),1));
-%         dataLong = ((cppAll.(plt.epoch).(thisGrouping).(longTag).sl)-baselines);
-%         dataLong = squeeze(nanmean(dataLong([chans],:,:),1));
         
         if plt.RIDE ==1
             indices = round(1.3*512:4.499*512);
@@ -325,7 +321,7 @@ for ee = 2 %For both experiments
         'emarker2', {[chans],'*','k',3,1}); % To plot location of the selected channel/s
     caxis([-20 20]);
     
-%     exportgraphics(f,[exp.figPath, 'GT_Fig2B_Exp' num2str(ee) '.tiff'], 'Resolution', 600)
+    exportgraphics(f,[exp.figPath, 'GT_Fig2B_Exp' num2str(ee) '.tiff'], 'Resolution', 600)
     
     %t-test for CPP-P1 vs CPP-P2 max amplitudes, averaging across all non-zero gaps.
     gacpp1 = nanmean(exc_cpp1(2:end,:)); gacpp2 = nanmean(exc_cpp2(2:end,:)); gacpp2_unc = nanmean(exc_cpp2_unc(2:end,:))
@@ -359,7 +355,7 @@ xlims = [1.3,4.5]*200;
 plt.epoch = 'P1'; e = 1;
 plt.baseline = 0;
 par.db = 1;
-factor = 2; %To convert beta amplitude values to power
+factor = 2; %To convert amplitude values to power
 sr = 200;
 plt.font = 11;
 data_allC = [];

@@ -136,27 +136,6 @@ exp.cnvChans = {'C28', 'C18', 'C15', 'C27', 'C19', 'C14','C26','C20','C13'}; %'C
 exp.lowthresh = -150; 
 exp.upthresh = 150;
 
-% for el = 1:length(exp.cppChans)
-%     thisCh = exp.cppChans(el)
-%     exp.cppIdx(el) = find(strcmp({chanlocs.labels}, thisCh))
-% end
-% 
-% for el = 1:length(exp.cppCentral)
-%     thisCh = exp.cppCentral(el)
-%     exp.cppCentralIdx(el) = find(strcmp({chanlocs.labels}, thisCh))
-% end
-% 
-% for el = 1:length(exp.cppParietal)
-%     thisCh = exp.cppParietal(el)
-%     exp.cppParietalIdx(el) = find(strcmp({chanlocs.labels}, thisCh))
-% end
-% 
-% for el = 1:length(exp.cnvChans)
-%     thisCh = exp.cnvChans(el)
-%     exp.cnvIdx(el) = find(strcmp({chanlocs.labels}, thisCh))
-% end
-
-
 %% TFA 
 exp.tfa.min_freq =  1;     % Minimum frequency
 exp.tfa.max_freq = 40;     % Maximum frequency

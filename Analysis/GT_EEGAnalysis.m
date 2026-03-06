@@ -25,8 +25,9 @@ exp.sub_id{2}            = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,
 % ==============================================================================================================================================
 % PREPROCESSING 
 % ==============================================================================================================================================
-%% Convert data & add trial information to raw EEG data files - DONE
-for sub = exp.sub_id{exp.thisExp}(end-1) %For each subject 
+%% Convert data & add trial information to raw EEG data files 
+% The output of this step are the raw data shared on the OSF repository
+for sub = exp.sub_id{exp.thisExp}(1:end) %For each subject 
     GT_convertData(sub, exp)
 end
 %% Preprocess data (Part 1) - DONE
@@ -50,14 +51,13 @@ end
 % TF DECOMPOSITION 
 % ==============================================================================================================================================
 %% Morlet wavelet transform preprocessed data 
-par.ds = 1; %Downsample to 200Hz
+par.ds = 1; %Downsample data to 200Hz
 for sub = exp.sub_id{exp.thisExp}(1:end) %For each subject
     for epoch = 1
-        par.epoch = exp.epochs{epoch}  %Options: P1, RL
+        par.epoch = exp.epochs{epoch}  %Options: P1 (pulse-1 aligned), RL (response-locked)
         GT_morletWavelet(sub,exp,par,plt,0)
     end
 end
-
 
 % ==============================================================================================================================================
 %% Average by condition
@@ -67,9 +67,9 @@ par.average = 1;
 allP = []; cppAll = [];
 w = warning ('off','all');
 
-for dataType = {'ERP'}; %'ERP' 'TFA',
+for dataType = {'TFA'}; %'ERP' 'TFA',
     par.dataType = dataType;
-    par.band = 'alpha';
+    par.band = 'beta';
     for epoch = 1
         par.epoch = exp.epochs{epoch};
         id = 0;
@@ -95,12 +95,8 @@ for dataType = {'ERP'}; %'ERP' 'TFA',
         if strcmp(par.dataType, 'ERP')
             %This file contains all condition sorting, with all channels
             save([exp.plotpath '/' exp.thisExpCode, '_' par.epoch '_allP_' dataType{1}, '_averageData.mat'], 'allP', '-v7.3')
-            %This one contains the channel average for CPP plots [lighter]
-            save([exp.plotpath '/' exp.thisExpCode, '_' par.epoch '_allP_' dataType{1}, '_averageData_cpp.mat'], 'cppAll', '-v7.3')
         else
-%             save([exp.plotpath '/' exp.thisExpCode, '_' par.epoch '_allP_' dataType{1}, '_averageData' par.band '.mat'], 'allP', '-v7.3')
-            save([exp.plotpath '/' exp.thisExpCode, '_' par.epoch '_allP_' dataType{1}, '_averageData' par.band '_short.mat'], 'allP', '-v7.3')
-
+            save([exp.plotpath '/' exp.thisExpCode, '_' par.epoch '_allP_' dataType{1}, '_averageData' par.band '.mat'], 'allP', '-v7.3')
         end
 
     end
