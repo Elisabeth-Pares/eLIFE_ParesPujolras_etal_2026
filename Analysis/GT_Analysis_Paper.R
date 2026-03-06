@@ -245,7 +245,6 @@ e2demo <-filter(e2demo, , (ID != 1 & ID != 21))
 myData <- rbind(e1sumData, e2sumData)
 sumData <-rbind(e1sumData, e2sumData)
 demoData <- rbind(e1demo, e2demo)
-myData <- rbind(e1sumData, e2sumData)
 allData <- rbind(e1data, e2data)
 
 #Starting coherence values- take first block only 
@@ -265,6 +264,11 @@ demographics <- demoData %>%
   summarise(meanAge = mean(age), 
             stdAge = sd(age), 
             sum(gender == 'f'))
+
+#Count trials x participant
+tcData <- myData %>%
+  group_by(exp,ID) %>%
+  summarise(trialN = n())
 
 
 ################################################################################################################################################################
@@ -456,15 +460,19 @@ myData <- myData %>%
 #Exp. 1
 eq4_1 <- glmer(accuracy ~ 1 + zc1plusc2 + zc2minc1 + (1+zc1plusc2 + zc2minc1|ID), 
                data = myData[myData$exp == 1  & myData$npulses == 2 & myData$cohLevel == '1Med',], # Take only two-pulse, mixed coherence trials. 
-               family = binomial(link = 'logit'))
-car::Anova(eq4_1, type = c(2))
+               family = binomial(link = 'logit'),
+               control=glmerControl(optimizer="bobyqa",
+               optCtrl=list(maxfun=2e5)))
 
+car::Anova(eq4_1, type = c(2))
 summary(eq4_1)
 
 #Exp. 2
-eq4_2 <- glmer(accuracy ~ 1 + zc1plusc2 + zc2minc1 + (1+zc1plusc2 + zc2minc1|ID), 
+eq4_2 <- bglmer(accuracy ~ 1 + zc1plusc2 + zc2minc1 + (1+zc1plusc2 + zc2minc1|ID), 
                data = myData[myData$exp == 2  & myData$npulses == 2 & myData$cohLevel == '1Med',], # Take only two-pulse, mixed coherence trials. 
-               family = binomial(link = 'logit'))
+               family = binomial(link = 'logit'),
+               control=glmerControl(optimizer="bobyqa",
+               optCtrl=list(maxfun=3e5)))
 
 car::Anova(eq4_2, type = c(2))
 summary(eq4_2)
