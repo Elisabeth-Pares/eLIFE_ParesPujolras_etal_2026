@@ -89,6 +89,7 @@ exp.filter.lowerbound = 0.1; % When 0.1, files are labelled f01; when 0.01, file
 exp.filter.upperbound = 40;
 exp.filter.order = 8;
 
+%Labels for intermediate preprocessing
 if exp.filter.lowerbound == 0.01
     exp.filterLab = 'f';
 elseif exp.filter.lowerbound == 0.1
@@ -100,8 +101,6 @@ exp.respEpoch= [-2, 1];
 exp.epochs = {'P1', 'RL'};% Trigger parameters
 
 % Analysis parameters & labels 
-exp.filterLabs = {'_f', '_f01'}; %Filter lab = _f if filter .01, _f01 if .1
-exp.icaLabs = {'', 'ab_cICAtrial_eyeB_rej_ri'; '', 'ab_cICAtrial_ri'}; %Rows: SL, RL; Columns: no ica, ica labels. 
 exp.nanLabs = {'', 'NaN_'}; 
 exp.csdLabs = {'', 'csd_prePulse'};
 exp.tfaLabs = {'', 'Power'};
@@ -148,13 +147,12 @@ exp.tfa.alphaBetaBands = [8:30]; %Alpha & beta bands
 
 exp.freqOfInterest = 'betaBand';
 
-%% SIMULATION PARAMETERS 
+%% SIMULATION PARAMETERS - defauts; but check changes in functions.
 pars.sr = 100;      %Simulation sampling rate
 pars.nSim= 1000;    %Number of simulations
-pars.maxIter =100;  %Max iterations for fitting 
-pars.nRepMat=100;   
+pars.maxIter = 100;  %Max iterations for fitting 
+pars.nRepMat = 100;   
 pars.stepAfterbndT = 0.1*pars.sr; %%When is activity reset back to 0 after hitting bound? 0.1s*sr. Originally: 50 (for 500 sr)
-pars.accType = 'erf'; %How to compute accuracy 
 
 %% PLOTTING PARAMETERS 
 plt.smooth = 10; 
