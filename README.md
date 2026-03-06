@@ -13,7 +13,7 @@ Code shared here was developed using Matlab R2021a, the [EEGab toollbox](https:/
 ## Analysis
 Contains the scripts used to perform all analyses reported in the paper. Main contents:
 
-- GT_BehAnalysis_Paper.R:
+- GT_BehAnalysis.R:
   - Preprocesses behavioural data and produces the aggregate files loaded in the Matlab scripts plotting behavioural results ("EPX_procBehData.csv").
   - Statistical tests reported in Eq. 1 to 4.
   
