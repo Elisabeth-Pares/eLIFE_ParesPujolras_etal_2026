@@ -18,5 +18,5 @@ Contains the scripts used to perform all analyses reported in the paper. Main co
   - Statistical tests reported in Eq. 1 to 4.
   
 - GT_EEGAnalysis.m: master script for EEG analysis. All required functions are included in the /EEG preprocessing/ folder. 
-  - /modelling/:includes all required functions to fit the models in the paper, and to produce the behavioural/EEG simulations.
-  - /figures/: reproduces Figures 1-5 in the main manuscript. Supplementary figures can be produced through this code too, by changing the appropriate parameters in each function and as commented in the code. 
+- /modelling/:includes all required functions to fit the models in the paper, and to produce the behavioural/EEG simulations.
+- /figures/: reproduces Figures 1-5 in the main manuscript. Supplementary figures can be produced through this code too, by changing the appropriate parameters in each function and as commented in the code. 
