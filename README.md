@@ -5,7 +5,7 @@ This repository contains analysis scripts for the following paper:
 [Parés-Pujolràs, E., Geuzebroek, A. C., O’Connell, R. G., & Kelly, S. P. (2025). Perceptual glimpses are locally accumulated and globally maintained at distinct processing levels. eLife, 14.
 ](https://elifesciences.org/reviewed-preprints/107980)
 
-The scripts included in the repository and the data on OSF (COMING SOON) enable the replication of the data analysis and figures reported in the paper. All are shared under a CC-BY 4.0 license.
+The scripts included in the repository and the data on [OSF](https://osf.io/z7dp2/) enable the replication of the data analysis and figures reported in the paper. All are shared under a CC-BY 4.0 license.
 
 Code shared here was developed using Matlab R2021a, the [EEGab toollbox](https://sccn.ucsd.edu/eeglab/) (v.2021.0), [FieldTrip toolbox](https://www.fieldtriptoolbox.org/), [CSD toolbox](https://psychophysiology.cpmc.columbia.edu/software/csdtoolbox/), and the [TBT toolbox](https://github.com/mattansb/TBT).
 
