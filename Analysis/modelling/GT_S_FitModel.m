@@ -1,24 +1,21 @@
 %% GT MODELLING FOR SONIC
-%Fit simple bounded drift diffusion model
 
-N = 10000; % Number of simulations to fit model 
+% Specify which model to run
+N = 10000; 
 
-%Parameter list [not all possible free parameters were used for the paper]
-parList = {'b', 'bc', 'd', 'db', 'z', 'accT', 'accTvar', 'eta', 'sz', 'sd', 'N', 'seed'};
+%parList = {'b', 'bc', 'dlow', 'dhigh', 'z', 'accT', 'accTvar', 'eta', 'sz', 'sd', 'N', 'seed'};
+parList = {'b', 'bc', 'dlow', 'dhigh', 'dp2', 'accT', 'accTvar', 'eta', 'sz', 'sd', 'N', 'seed'};
 
-%Names of the models to fit. 
-%Note: Names are important, because they are used in
-%the GT_getSimPars function later on to determine some aspects of the
-%accumulation process. For example, 1DV indicates that decisions are based
-%on one single DV that extends all the way from P1 to P2, rather than the 
-%assuming that choices are based on the sum of two independent decision
-%processes where P1 + P2 are fully integrated. 
+modelNames = {'FixedBound_1DV_2DR',...
+ 'FixedBound_1DV_2DR_lowDRP2', 'FixedBound_1DV_2DR_invDRP2',...
+ 'NoBound_1DV_2DR_lowDRP2', 'NoBound_1DV_2DR_invDRP2'};
 
-modelNames = {'FixedBound_1DV_2DR', 'FixedBound_1DV_2DR_DRvar'};
-% Vectors
 Selvecs = {...
-    [1 0 1 1 0 0 0 0 0 0 0 0],...;%FixedBound_1DV_2DR 
-    [1 0 1 1 0 0 0 0 0 1 0 0]}    %FixedBound_2DR_DRvar   
+    [1 0 1 1 0 0 0 0 0 0 0 0],...;%FixedBound_1DV_2DR (3) - FINAL 
+    [1 0 1 1 1 0 0 0 0 0 0 0],...%FixedBound_1DV_2DR_lowDRP2(9) %R2: scale P2 drift rate 
+    [1 0 1 1 1 0 0 0 0 0 0 0],...%FixedBound_1DV_2DR_invDRP2(10) %R2: scale P2 drift rate inversely to P1
+    [0 0 1 1 1 0 0 0 0 0 0 0],...%NoBound_1DV_2DR_lowDRP2(11) %R2: scale P2 drift rate 
+    [0 0 1 1 1 0 0 0 0 0 0 0]}...%NoBound_1DV_2DR_invDRP2(12) %R2: scale P2 drift rate inversely to P1 
 
 % Fit for both experiments
 for e = 1:2 
@@ -30,7 +27,7 @@ for e = 1:2
     [exp, pars]  = GT_S_setup(exp); %Get correct experiment parameters
     
     pars.nSim = N;
-    pars.simpleFit = 0; %  Option to fit model to subsets of trials. 0: all, 1: 1p and 0gap, 2: 1p, 0 and long gap; 3 = 1p and long only; 
+    pars.simpleFit = 0; % 0: all, 1: 1p and 0gap, 2: 1p, 0 and long gap; 3 = 1p and long only; 
 
     %Load grand-averaged data 
     thisFile = fullfile(".", ['GT_gaDat_' exp.thisExpCode '.mat']); 
@@ -39,18 +36,22 @@ for e = 1:2
     %% Parameter specifications
     par_range = [0.01, 0.1;...%0.1;...%0.01 0.1;...%0 1;...    % Bound - before 1
         0.01, 0.1;...       % Rate of bound collapse/increase [0.000125 to 0.002] - allow it to be 0 - would indicate fixed bound
-        0.001 1;...         % Drift rate 1 
-        0.001 1;...         % Drift rate 2
-        -2 2;...            % Bias: starting point shift
-        0 1;...             % AccT: time of accumulation onset
-        0 1;...             % AccTvar; variability in accT
+        0.001 0.25;...         % Drift rate [Restricted from .001 -1 to .001 0.25 to help fitting]
+        0.001 0.25;...         % Drift rate bias - option to increase DR if bound not hit after DV1
+        0 2;...            % dp2: allow drift rate at P2 to be systematically lower/higher than in P1 
+        0 1;...             % AccT
+        0 1;...             % AccTvar
         0 1;                % eta
-        -0.4 0.4;...        % sz: variabiliyt in starting point shift
+        -0.4 0.4;...        % sz
         -0.4 0.4;...        % sd
         N N;...
         seed seed];
+
+%     par_range = [par_range; ...
+%         N N;...
+%         seed seed];
     
-    pm_if_fixed = [1 0 0 0 0 0 0 0 0 0 N seed]; %Which default values to use if parameters are not free
+    pm_if_fixed = [Inf 0 0.15 0 1 0 0 0 0 0 N seed];
     
     %% Fit model
     p = [];
@@ -60,8 +61,8 @@ for e = 1:2
         numfreepm=sum(Sel);
         disp(['Fitting ' modelNames{m} ' model, for Experiment ' num2str(e), ', fitType' num2str(pars.simpleFit)])
         
-        options = optimoptions('particleswarm','UseParallel',false, 'SwarmSize', 10*sum(Sel),'MaxStallIterations', 40); %Edited on 7/10/24 - tried to extend max stall iterations to try avoiding local minima
-        pars.acc = 'erf';
+        options = optimoptions('particleswarm','UseParallel',true, 'SwarmSize', 10*sum(Sel),'MaxStallIterations', 40); %Edited on 7/10/24 - tried to extend max stall iterations to try avoiding local minima
+        
         [p, g2(e,m)] = particleswarm(@(p) GT_S_GSquare(p,exp,pars,pm_if_fixed(Sel == 0),Sel,ga, modelNames{m}), sum(Sel), par_range((Sel==1),1)',par_range((Sel==1),2)', options);
         bestpm(e,m,Sel==1) = [p]; 
         bestpm(e,m,[Sel==0]) = pm_if_fixed(Sel==0);

@@ -40,14 +40,9 @@ max_freq = exper.tfa.max_freq;     % Maximum frequency
 num_frex = exper.tfa.num_frex;     % Specifies how many frequencies to compute. For a 1Hz resolution, do (max_freq-min_freq).
 frex = exper.tfa.frex; % Define vector with centre frequencies to compute - set up in EP1_setup
 
-% channel2use = {EEG.chanlocs.labels};
-% channel2use = channel2use(1:exper.nEEGchans);
-
-% channel2use = {'B22', 'D19'};
-% channel2use = channel2use(1:exper.nEEGchans);
-
-channel2use = {EEG.chanlocs(exper.movCluster(1,:)).labels, EEG.chanlocs(exper.movCluster(2,:)).labels};%{'B22', 'D19'};
-% channel2use = channel2use(1:exper.nEEGchans);
+ 
+% channel2use = {EEG.chanlocs(exper.movCluster(1,:)).labels, EEG.chanlocs(exper.movCluster(2,:)).labels};%{'B22', 'D19'};
+channel2use = channel2use(1:exper.nEEGchans);
 
 % other wavelet parameters
 range_cycles = [7];
@@ -116,9 +111,7 @@ for c = 1:length(channel2use)
 end
 toc();
 
-% save([exper.tfapath '/Power_DS_' filename(1:end-3) '.mat'], 'sumDat', '-v7.3');
-
-save([exper.tfapath '/Power_DS_' filename(1:end-3) 'movCluster.mat'], 'sumDat', '-v7.3');
+save([exper.tfapath '/Power_DS_' filename(1:end-3) '.mat'], 'sumDat', '-v7.3');
 
 
 %Plot 3 sample trials (amplitude on the left, power spectrum on the
