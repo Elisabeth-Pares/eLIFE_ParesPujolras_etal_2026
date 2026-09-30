@@ -5,7 +5,7 @@ pm(Sel==1) = pvar;  %Parameters to fit
 pm(Sel==0) = pfix;  %Fixed parameters
 
 % Pull the parameter values out of the input parameter vector:
-[parb, bc, dlow, dhigh,z, accT, accTvar, eta, sz, sd, N, seed] = deal(pm(1),pm(2),pm(3),pm(4),pm(5),pm(6),pm(7),pm(8), pm(9), pm(10), pm(11), pm(12));
+[parb, bc, dlow, dhigh,dp2, accT, accTvar, eta, sz, sd, N, seed] = deal(pm(1),pm(2),pm(3),pm(4),pm(5),pm(6),pm(7),pm(8), pm(9), pm(10), pm(11), pm(12));
 
 %% Simulation parameters
 s = 0.1;            % within-trial noise - scaling parameter
@@ -49,14 +49,20 @@ for c=condIdx(1:end)
     for n=1:N % each single trial
         
         if dhigh == 0; d1 = dlow; d2 = dlow; %If estimating one single drift rate, assume d1 = d2
-        else, %Use the name of conditions to set the appropriate drift rate for each pulse 
-            if contains(pars.cLab{c}, 'P1low') %Low drift rate 
+        else, %Use the name of conditions to set the appropriate drift rate for each pulse
+            if contains(pars.cLab{c}, 'P1low') %Low drift rate
                 d1 = dlow;      %Set drift rate for pulse 1 (d1) as dlow (free parameter for drift rate 1 = dlow, low coh dr)
             else d1 = dhigh;    %Set drift rate for pulse 1 (d1) as dhigh (free parameter for drift rate 2 = dhigh, high coh dr)
             end
+            if contains(pars.drModulation, 'invDRP2')
+                thisdp2 = 1/d1*dp2; %Inverse scaling with P1 coh
+            else
+                thisdp2 = dp2;
+            end
+            
             if contains(pars.cLab{c}, 'P2low')
-                d2 = dlow;      %Set drift rate for pulse 2 (d2) as dlow (free parameter for drift rate 1 = dlow, low coh dr)
-            else d2 = dhigh;    %Set drift rate for pulse 2 (d2) as dhigh (free parameter for drift rate 2 = dhigh, high coh dr)
+                d2 = dlow*thisdp2;      %Set drift rate for pulse 2 (d2) as dlow (free parameter for drift rate 1 = dlow, low coh dr)
+            else d2 = dhigh*thisdp2;    %Set drift rate for pulse 2 (d2) as dhigh (free parameter for drift rate 2 = dhigh, high coh dr)
             end
         end
         
@@ -320,7 +326,7 @@ for c=condIdx(1:end)
                     newDVtt(p2Idx(end)+pars.stepAfterOffset:end)=0; % 100 ms linear drop after bound crossing:
 
                     if pars.biased == 0 || p1DV == 0%If not biased OR no bound hit at all
-                        p2DV = thisDV(p2Idx(end))  ; %0
+                        p2DV = thisDV(p2Idx(end)); 
                     elseif pars.biased == 1 & p1DV ~= 0 %If no bound hit, do not compute
                         p2DV = 0;
                         p2ERP = repmat(0, length(p2ERP), 1)'; %NO accum if bound already hit

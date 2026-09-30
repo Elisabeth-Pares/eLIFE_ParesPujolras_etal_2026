@@ -17,8 +17,12 @@ if strcmp(par.dataType, 'ERP')
     sr = 512; %Original sampling rate
     
 else
-
-    filename = [exp.tfapath, '/Power_DS_csd_preproc_' par.epoch '_' exp.thisExpCode '_P' num2str(sub) '..mat'];
+    
+    if exp.thisExp == 1
+        filename = [exp.tfapath, '/Power_csd_preproc_' par.epoch '_' exp.thisExpCode '_P' num2str(sub) '..mat'];
+    else
+        filename = [exp.tfapath, '/Power_DS_csd_preproc_' par.epoch '_' exp.thisExpCode '_P' num2str(sub) '..mat'];
+    end
     
     load([filename]);
     if strcmp(par.band, 'alpha');
@@ -75,6 +79,7 @@ allP.P1.allCond_rl(:,:,id) = nanmean(rl_thisData,3);
 end
 exp.resLabs = {'lowP1w', 'highP1w'};
 if par.average == 1
+    
     for group = 1:length(par.groupings)
         thisGroup= par.groupings{group};
         sortBy = GT_getConditions(thisGroup); %Get sorting parameters

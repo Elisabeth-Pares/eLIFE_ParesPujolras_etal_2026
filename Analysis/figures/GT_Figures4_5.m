@@ -31,18 +31,23 @@ exp.sub_id{2}            = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,
 %% Plot SONIC fitted models
 close all
 
-modelNames = {'FixedBound_1DV_2DR', 'FixedBound_1DV_2DR_DRvar'}; %Model names 
+modelNames = {'FixedBound_1DV_2DR', 'FixedBound_1DV_2DR_DRvar','NoBound_1DV_2DR_lowDRP2', 'NoBound_1DV_2DR_invDRP2',...
+    'FixedBound_1DV_2DR_lowDRP2', 'FixedBound_1DV_2DR_invDRP2'}; %Model names 
 Selvecs = {...
-    [1 0 1 1 0 0 0 0 0 0 0 0],...;%FixedBound_1DV_2DR - Model in the main manuscript, with Bound, DR1 and DR2
+    [1 0 1 1 0 0 0 0 0 0 0 0],...;   %FixedBound_1DV_2DR - Model in the main manuscript, with Bound, DR1 and DR2
     [1 0 1 1 0 0 0 0 0 1 0 0],...;   %FixedBound_2DR_DRvar - Supplementary model with additional trial-by-trial variability in DR2 
-    };
+    [0 0 1 1 1 0 0 0 0 0 0 0],...%NoBound_1DV_2DR_lowDRP2(3) %R2: No bound, scale P2 drift rate 
+    [0 0 1 1 1 0 0 0 0 0 0 0],...%NoBound_1DV_2DR_invDRP2(4) %R2: No bound, scale P2 drift rate inversely to P1 
+    [1 0 1 1 1 0 0 0 0 0 0 0],...%FixedBound_1DV_2DR_lowDRP2(5) %R2: No bound, scale P2 drift rate 
+    [1 0 1 1 1 0 0 0 0 0 0 0]}...%FixedBound_1DV_2DR_invDRP2(6) %R2: No bound, scale P2 drift rate inversely to P1 
+
 
 N = 1000; %Number of simulations
 i =0;
-for m = 1
-            i = i+1;
+for m = 3
+    i = i+1;
             for e = 1:2 %For the two experiments
-                modelNames = {'FixedBound_1DV_2DR', 'FixedBound_1DV_2DR_DRvar'};
+                modelNames = {'FixedBound_1DV_2DR', 'FixedBound_1DV_2DR_DRvar','NoBound_1DV_2DR_lowDRP2', 'NoBound_1DV_2DR_invDRP2',    'FixedBound_1DV_2DR_lowDRP2', 'FixedBound_1DV_2DR_invDRP2'};
                 modelName = modelNames{m};
 
                 exp.thisExp = e; %Experiment to analyse
@@ -57,9 +62,24 @@ for m = 1
                 load(['C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_gaDat_' exp.thisExpCode '.mat']);
                 
                 %Load model results
-                load(['C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_S_ModelFits\FixedBound_1DV_2DR_fitType0_n10000.mat']);
+                if m == 1;
+                    load(['C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_S_ModelFits\FixedBound_1DV_2DR_fitType0_n10000.mat']);
+                    pm = squeeze(bestpm(e,3,:));  %Because model vars were saved as model 3 in fitting procedure
+                elseif m == 3
+                    load(['C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_S_ModelFits\NoBound_1DV_2DR_lowDRP2_fitType0.mat']);
+                    pm = squeeze(bestpm(e,11,:));  %Because model vars were saved as model 3 in fitting procedure
+                elseif m == 4
+                    load(['C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_S_ModelFits\NoBound_1DV_2DR_invDRP2_fitType0.mat']);
+                    pm = squeeze(bestpm(e,12,:));  %Because model vars were saved as model 3 in fitting procedure
+                elseif m == 5
+                    load(['C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_S_ModelFits\FixedBound_1DV_2DR_lowDRP2_fitType0.mat']);
+                    pm = squeeze(bestpm(e,9,:));  %Because model vars were saved as model 3 in fitting procedure
+                elseif m == 6
+                    load(['C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_S_ModelFits\FixedBound_1DV_2DR_invDRP2_fitType0.mat']);
+                    pm = squeeze(bestpm(e,10,:));  %Because model vars were saved as model 3 in fitting procedure
 
-                pm = squeeze(bestpm(e,3,:));
+                end
+            
                 Sel = pm ~= 0; pvar = pm(pm ~= 0); pfix = pm(pm == 0);
                 
                 pars = GT_S_getSimPars(exp, pars, modelName);
@@ -70,14 +90,19 @@ for m = 1
             plt.modelTitle = ['Model ' num2str(i), 'fitType = 0'];
             pars.accType = 'bin';
 end
-
+% 
 % save('C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_allSims_n50000.mat', 'allSims', 'allPars', '-v7.3')
+% save(['C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_' modelName '_allSims_n10000.mat'], 'allSims', 'allPars', '-v7.3')
 
 % ===========================================================================
 %% PLOT SIMULATIONS, with real data overlaid
 % ===========================================================================
+
 %% Figure 4
 %Load real data
+load('C:\Users\elisa\Desktop\GapsTask\Modelling & simulations\GT_Sonic\GT_allSims_n50000.mat')
+
+%%
 f = figure;
 for e = 1:2 %For both experiments
     
@@ -214,7 +239,7 @@ for e = 1:2 %For both experiments
         if e == 2; ylabel('                                         |DV| at P1 if B not hit'); end
         xticks([1,2,3,4]); xticklabels({'LL','LH','HL', 'HH'});
         
-                if e == 2; ylim([0.013,0.016]); elseif e == 1; ylim([0.015,0.02]); end
+%                 if e == 2; ylim([0.013,0.016]); elseif e == 1; ylim([0.015,0.02]); end
         set(gca, 'fontsize', 11);
         
         box on;
@@ -225,15 +250,15 @@ end
 
 f.Units = 'centimeters';
 f.OuterPosition = [2 2 21 14]
-exportgraphics(f, [exp.figPath, 'GT_Fig4_noLine.tiff'], 'Resolution', 600)
-exportgraphics(f, [exp.figPath, 'GT_Fig4_noLine.pdf'], 'Resolution', 600)
+% exportgraphics(f, [exp.figPath, 'GT_Fig4_noLine.tiff'], 'Resolution', 600)
+% exportgraphics(f, [exp.figPath, 'GT_Fig4_noLine.pdf'], 'Resolution', 600)
 
 % ====================================================================
 %% PLOT EEG SIMULATIONS
 % ====================================================================
 % Plot MBL & CPP for each experiment separately 
 ylims = ([0 0.035]);
-sortBy.acc = 1; 
+sortBy.acc = 0; 
 decayBlue = 1; %Does the CPP go down when dots turn blue? 1 - yes, 0 - no
 
 for e = 1:2 %For both experiments
@@ -394,7 +419,7 @@ for ce = ceIdxx(1:end)
             thisCol = flip(plt.satPalettes{1,p1*p1});
             
             subplot(2,2,3) %Plot CPP-P1
-            ylims = [0,0.035+pars.decayDelay/1000]; ylim(ylims);
+%             ylims = [0,0.035+pars.decayDelay/1000]; ylim(ylims);
             if sortBy.acc == 1
                 plot(squeeze(nanmean(nanmean(all_p1sim(e,ce,cc,gIdx,1:end),4),3)),'LineWidth', 2, 'Color', thisCol, 'LineStyle', ls);
             else
@@ -407,11 +432,12 @@ for ce = ceIdxx(1:end)
             hold on;xlabel('Time (s)');
             xticks([0.2*pars.sr, pars.sr/2+0.2*pars.sr, pars.sr+0.2*pars.sr]); xticklabels({'P1', '0.5', '1'});
             xline(0.2*pars.sr)
-            ylim(ylims); xlim(xlims);
+%             ylim(ylims); 
+            xlim(xlims);
             set(gca, 'fontsize', 12)
             
             subplot(2,2,1) %Plot MBL-P1
-            ylims = [0,0.05]; ylim(ylims);
+%             ylims = [0,0.05]; ylim(ylims);
             if sortBy.acc == 1
                 plot(squeeze(nanmean(nanmean(all_p1mbl(e,ce,cc,gIdx,1:end),4),3)),'LineWidth', 2, 'Color', thisCol, 'LineStyle', ls);
             else
@@ -423,7 +449,7 @@ for ce = ceIdxx(1:end)
             set(gca, 'fontsize', 12, 'ydir', 'reverse')
             xticks([0.2*pars.sr, pars.sr/2+0.2*pars.sr, pars.sr+0.2*pars.sr]); xticklabels({'P1', '0.5', '1'});
             xline(0.2*pars.sr)
-            ylim(ylims);
+%             ylim(ylims);
             
         end
         
@@ -435,7 +461,7 @@ for ce = ceIdxx(1:end)
                 c = c+1;
                 cc = cc-1;
                 subplot(2,2,4) %CPP-P2
-                ylims = [0,0.015]; ylim(ylims);
+%                 ylims = [0,0.015]; ylim(ylims);
                 if sortBy.acc == 1
                     plot(squeeze(nanmean(nanmean(all_p2sim(e,ce,cc,gIdx,1:end),4),3)),'LineWidth', 2, 'Color', plt.Rcolors{cc}, 'LineStyle', ls);
                 else
@@ -450,7 +476,7 @@ for ce = ceIdxx(1:end)
                 
                 
                 subplot(2,2,2) %MBL-P2
-                ylims = [0,0.05]; ylim(ylims);
+%                 ylims = [0,0.05]; ylim(ylims);
                 if sortBy.acc == 1
                     plot(squeeze(nanmean(nanmean(all_p2mbl(e,ce,cc,gIdx,1:end),4),3)),'LineWidth', 2, 'Color', plt.Rcolors{cc}, 'LineStyle', ls);
                 else
@@ -472,8 +498,8 @@ for ce = ceIdxx(1:end)
         set(gca, 'fontsize', 12)
         f.Units = 'centimeters';
         f.OuterPosition = [0.5,0.5,14,15];
-        exportgraphics(f, [exp.figPath, 'GT_Fig5B_Exp' num2str(e) '.tiff'], 'Resolution', 600)
-        exportgraphics(f, [exp.figPath, 'GT_Fig5B_Exp' num2str(e) '.pdf'], 'Resolution', 600)
+%         exportgraphics(f, [exp.figPath, 'GT_Fig5B_Exp' num2str(e) '.tiff'], 'Resolution', 600)
+%         exportgraphics(f, [exp.figPath, 'GT_Fig5B_Exp' num2str(e) '.pdf'], 'Resolution', 600)
     end
 end
 

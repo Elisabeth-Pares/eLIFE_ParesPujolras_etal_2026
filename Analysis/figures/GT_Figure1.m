@@ -22,8 +22,8 @@ for e = 1:2 %For both experiments
     flippedCols = (plt.Rcolors);
     colors = (flippedCols);
     %Plot single-pulse accuracies
-    rr1 = plot([-0.3:0.01:-0.2],repmat(squeeze(ga.p(1,1,1)),1,11),  'LineStyle','-','LineWidth', 2); hold on; %', 'none', 'Marker', '*', 'MarkerSize', 5); hold on;
-    rr2 = plot([-0.2:0.01:-0.1],repmat(squeeze(ga.p(1,1,2)),1,11),  'LineStyle', '-','LineWidth', 2); hold on; %', 'none', 'Marker', '*', 'MarkerSize', 5); hold on;
+    rr1 = plot([-0.3:0.01:-0.2],repmat(squeeze(ga.p(1,1,1)),1,11),  'LineStyle','-','LineWidth', 2); hold on;
+    rr2 = plot([-0.2:0.01:-0.1],repmat(squeeze(ga.p(1,1,2)),1,11),  'LineStyle', '-','LineWidth', 2); hold on; 
     hold on;
     
     %Averaged over gaps

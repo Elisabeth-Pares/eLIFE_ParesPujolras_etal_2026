@@ -33,10 +33,31 @@ end
 %% DR options - To estimate 2 drift rates (high/low coherence separately). If set to NA, force linear scaling.
 if contains(modelName, '2DR')
     pars.drModulation = '2DR';
-else pars.drModulation = 'NA'; 
+
 end
 
-
+%% DR 
+% if contains(modelName, 'StepDR'); pars.drModulation = 'step'; 
+% elseif contains(modelName, 'LinDR'); pars.drModulation = 'linear'; 
+% elseif contains(modelName, 'BiasDR');  pars.drModulation = 'bias'; 
+% elseif contains(modelName, 'invprob_global'); pars.drModulation = 'invprob'; 
+%     pars.globalgain = 1; 
+%     elseif contains(modelName, 'invprob_DR'); pars.drModulation = 'invprob'; 
+%     pars.globalgain = 0; 
+% elseif contains(modelName, 'alphaDR')
+%     pars.drModulation = 'alpha';
+% elseif contains(modelName, '2DR')
+%     pars.drModulation = '2DR';
+% elseif contains(modelName, 'invDRP2')
+%     pars.drModulation = 'invDRP2';
+% else pars.drModulation = 'NA'; 
+%     
+% end
+if contains(modelName, 'invDRP2')
+    pars.drModulation = 'invDRP2';
+else pars.drModulation = 'NA'; 
+    
+end
 
 
 

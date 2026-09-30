@@ -15,7 +15,7 @@
 clc
 clear all
 
-exp.thisExp = 2;        %Experiment to analyse: set to 1 or 2
+exp.thisExp = 1;        %Experiment to analyse: set to 1 or 2
 [exp, plt]  = GT_setup(exp);
 
 %Participant IDs for each experiment

@@ -78,7 +78,7 @@ exp.repLabs = {'Alt', 'Rep'}; %Alternation/Repetition response
 
 exp.movChans = [115,54]; %Central electrodes over left & right motor cortex 
 
-exp.movCluster = [108,107,115,116,124,123,114;63,64,54,55,50,49,53]; %Left, right  
+exp.movCluster = [108,107,115,116,124,123;63,62,54,55,50,49]; %Left, right  
 
 exp.parietalFocus = [4,32,31,30,21,17,18,5,19,20];
 

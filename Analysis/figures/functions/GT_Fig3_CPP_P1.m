@@ -37,6 +37,7 @@ for g = 1:length(exp.gapDur{exp.thisExp})
                 newData(:,s) = squeeze(nanmean(data([bestCh],:,s),1));
             end
             data = []; data = newData; 
+            ufdata = data; 
             if plt.RIDE ==1
                 indices = round(1.3*512:4.499*512);
                 
@@ -62,6 +63,10 @@ for g = 1:length(exp.gapDur{exp.thisExp})
                 end
             end
             
+              ignoredP(g) = NaN; 
+        if any(isnan(data(1,:))), warning(['Oops! ' sum(isnan(data(1,:))) 'P excluded in G' num2str(g)]); 
+        ignoredP(g) =  sum(isnan(data(1,:)));  end
+    
             data_allC(g,p1,:,:) = data; 
              %Remove conditions with <5 trials
             data_allC(g,p1,:,include == 0) = NaN; 
@@ -71,7 +76,7 @@ for g = 1:length(exp.gapDur{exp.thisExp})
             
             fill(plt.gapShades{exp.thisExp}(g+1,:)*ds,[ylims, flip(ylims)], thisCol, 'LineStyle','none','facealpha', 0.2/4); %Plot pulses in time
             hold on
-            stdshade(data(1.3*sr:endPoint,:)', plt.alpha, thisCol, lineType,[],plt.smooth) %Plot ERP traces
+            stdshade(ufdata(1.3*sr:endPoint,:)', plt.alpha, thisCol, lineType,[],plt.smooth) %Plot ERP traces
             hold on;
             
             thisCol = plt.colors(1);

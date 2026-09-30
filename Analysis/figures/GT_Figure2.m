@@ -7,18 +7,18 @@ for ee = 1:2 %For both experiments
     exp.thisExp = ee; %Experiment to analyse
     [exp, plt]  = GT_setup(exp);
     exp.sub_id{1}            = [1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; % P8 excluded because only 4 blocks were recorded.
-    exp.sub_id{2}            = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23]; % P1 & P21 excluded because they could not perform task well
+    exp.sub_id{2}            = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23];    % P1 & P21 excluded because they could not perform task well
 
     %Load dummy EEG to have scalp locations
     EEG = pop_loadset([exp.filepath '/csd_preproc_P1_' exp.thisExpCode '_P2.set']);
     %Load ERP/TF average data
-    load(['C:\Users\elisa\Desktop\GapsTask\' exp.thisExpName '\Data\plot data\' exp.thisExpCode '_P1_allP_TFA_average_beta.mat'])
+    load(['C:\Users\elisa\Desktop\GapsTask\' exp.thisExpName '\Data\plot data\' exp.thisExpCode '_P1_allP_TFA_averageDatabeta.mat'])
     
     plt.epoch = 'P1'; %Locked to stimulus onset
     plt.font = 11;
     par.db = 1;     %DB transform power data
     ds = (200/512); %Consider downsampling for times (MBL data are 200Hz)
-    thisGrouping = 'np_gap_dir_acc_' %Data are sorted by gap duration, dot direction and accuracy
+    thisGrouping = 'np_gap_dir_acc_' %Data are sorted by gap duration, dot direction and accuracy; take two-pulse trials only
     if par.db == 0, ylims = [-2.75 2.75]; else ylims = [-2.75,2.75]; end %Plotting parameters
     e=1;
     %%
@@ -44,14 +44,17 @@ for ee = 1:2 %For both experiments
                 if par.db == 1; unitTag = '(dB)';
                     baselines = nanmean(allP.(plt.epoch).(thisGrouping).(dataTag).sl(:,[1.3*200:1.5*200],:),2).^factor;
                     data = 10*log10(allP.(plt.epoch).(thisGrouping).(dataTag).sl.^factor./baselines);
+%                     baselines = nanmean(allP.(plt.epoch).(thisGrouping).(dataTag)(:,[1.3*200:1.5*200],:),2).^factor;
+%                     data = 10*log10(allP.(plt.epoch).(thisGrouping).(dataTag).^factor./baselines);
+
                 else; unitTag = '(\muV/m^{2})';
                     baselines = nanmean(allP.(plt.epoch).(thisGrouping).(dataTag).sl(:,[1.3*200:1.5*200],:),2).^factor;
-                    data =(allP.(plt.epoch).(thisGrouping).(dataTag).sl).^factor;%-baselines);
+                    data =(allP.(plt.epoch).(thisGrouping).(dataTag).sl).^factor;
                 end
                 newData(d,:,:) = squeeze(nanmean(data([exp.movCluster(1,chanSel)],:,:),1))-squeeze(nanmean(data([exp.movCluster(2,chanSel)],:,:),1)); %L-R (C3-C4)
                 dataTopo(d,g,:,:,:) = squeeze(nanmean(data(:,1.5*200:2.6*200,:),2));
                 
-                endPoint = round([0.4 + exp.gapDur{exp.thisExp}(g) + 0.70+1.5]*200); %Plot up to the earlies time the lead-out dots might have occurred 
+                endPoint = round([0.4 + exp.gapDur{exp.thisExp}(g) + 0.70+1.5]*200); %Plot up to the earliest time the lead-out dots might have occurred 
             end
             %Subtract (Right - left) based on dot motion
             if g == length(exp.gapDur{exp.thisExp}) ; newdataTopo = squeeze(nanmean(dataTopo(1,:,:,:,:),2) - nanmean(dataTopo(2,:,:,:,:),2)); end
@@ -63,6 +66,11 @@ for ee = 1:2 %For both experiments
                 plotData(s,:) = filtfilt(bfilt,afilt, plotData(s,:));
             end
             
+            ignoredP(g) = NaN;
+            if any(isnan(plotData(1,:))), error(['Oops! ' sum(isnan(plotData(1,:))) 'P excluded in G' num2str(g)]);
+                ignoredP(g) =  sum(isnan(plotData(1,:)));  end
+
+
             if g == 1; fill(plt.gapShades{exp.thisExp}(1,:)*ds,[ylims, flip(ylims)], 'k', 'LineStyle','none','facealpha', 0.2); end; %Plot pulses in time
             if acc == 1; fill(plt.gapShades{exp.thisExp}(g+1,:)*ds,[ylims, flip(ylims)], thisCol, 'LineStyle','none','facealpha', 0.2); end%Plot pulses in time
             hold on
@@ -97,7 +105,7 @@ for ee = 1:2 %For both experiments
                     end
                 end
             end
-            
+%             
             xticks(round(plt.xticks(e,:)*ds));
             xticklabels(plt.xlabs(e,:)); set(gca, 'fontsize', plt.font)
             yline(0, 'k'); xline(0.2*200, 'k')
@@ -139,8 +147,10 @@ end
 %% CPP
 % Plot CPP across 4 conditions, for ALL delays
 for ee = 1:2 %For both experiments
+    clear data; clear dataLong; clear allP; clear dataP2;
     exp.thisExp = ee; %Experiment to analyse
     [exp, plt]  = GT_setup(exp);
+    
     exp.sub_id{1}            = [1,2,3,4,5,6,7,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]; % P8 excluded because only 4 blocks were recorded.
     exp.sub_id{2}            = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,22,23]; % P1 & P21 excluded because they could not perform task well
 
@@ -160,13 +170,12 @@ for ee = 1:2 %For both experiments
     %Load dummy EEG to have scalp locations
     EEG = pop_loadset([exp.filepath '/csd_preproc_P1_' exp.thisExpCode '_P2.set']);
     
-    %Load sample-wise regression to remove colour decisions if plt.correction
-    %[not used in paper]
-%     RIDE = load([exp.filepath '/' exp.thisExpCode '_allP_ride_allPdata.mat']);
-%     RIDE = RIDE.allP;
+    %Load sample-wise regression to remove colour decisions if plt.correction [not used in paper]
+    %     RIDE = load([exp.filepath '/' exp.thisExpCode '_allP_ride_allPdata.mat']);
+    %     RIDE = RIDE.allP;
     
     %Load ERP average data
-    load(['C:\Users\elisa\Desktop\GapsTask\' exp.thisExpName '\Data\plot data\' exp.thisExpCode '_P1_allP_ERP_averageData.mat'])
+    load(['C:\Users\elisa\Desktop\GapsTask\' exp.thisExpName '\Data\plot data\' exp.thisExpCode '_P1_allP_ERP_average.mat'])%Data.mat'])
     
     %%
     peak_cpp1 = []; peak_cpp2 = [];
@@ -184,9 +193,10 @@ for ee = 1:2 %For both experiments
         longTag = ['twoPulse' longGap{1}];
         
         rideTag = thisGap;
-        baselines = nanmean(allP.(plt.epoch).(thisGrouping).(dataTag).sl(:,round(1.3*sr):round(1.5*sr),:),2);
-        data =((allP.(plt.epoch).(thisGrouping).(dataTag).sl)-baselines);
-
+%         baselines = nanmean(allP.(plt.epoch).(thisGrouping).(dataTag).sl(:,round(1.3*sr):round(1.5*sr),:),2);
+%         data =((allP.(plt.epoch).(thisGrouping).(dataTag).sl)-baselines);
+                baselines = nanmean(allP.(plt.epoch).(thisGrouping).(dataTag)(:,round(1.3*sr):round(1.5*sr),:),2);
+        data =((allP.(plt.epoch).(thisGrouping).(dataTag))-baselines);
         
         %To plot topography at peak of gap = 0;
         if g == 1;
@@ -194,7 +204,9 @@ for ee = 1:2 %For both experiments
         end
         
         data = squeeze(nanmean(data([chans],:,:),1));
-        dataLong = ((allP.(plt.epoch).(thisGrouping).(longTag).sl)-baselines);
+%         dataLong = ((allP.(plt.epoch).(thisGrouping).(longTag).sl)-baselines);
+        dataLong = ((allP.(plt.epoch).(thisGrouping).(longTag))-baselines);
+
         dataLong = squeeze(nanmean(dataLong([chans],:,:),1));
         
         if plt.RIDE ==1
@@ -208,10 +220,16 @@ for ee = 1:2 %For both experiments
         p1Idx = round([1.9*sr:2.1*sr ]); %For peak amp, 0.4-0.6s after P1 onset
         p2Idx = round([(1.9 + 0.2 +gapDur)*sr:(2.1+0.2+gapDur)*sr]); %For peak amp, 0.4s-0.6 after P2 onset
         
+        %Remove data after median RTs post dot offset,%conservative
+        endPoint = round([0.4 + exp.gapDur{exp.thisExp}(g) + 0.75+1.5]*sr);
+
         %Low pass filter at 6Hz for viz.
         [bfilt,afilt] = butter(3, 6*2/512, 'low');   % lo-pass
+        ufdata = data;  
         for s = 1:size(data,2) %Subject
-            data(:,s) = filtfilt(bfilt,afilt, data(:,s));
+                        data(:,s) = filtfilt(bfilt,afilt, data(:,s));
+
+%             data(1.3*512:endPoint,s) = filtfilt(bfilt,afilt, data(1.3*512:endPoint,s));
             dataP2(:,s) = data(:,s); %dataP1 will be the data after removing P1 activity based on longest gap condition
             
             dataLong(:,s) = filtfilt(bfilt,afilt, dataLong(:,s));
@@ -229,6 +247,11 @@ for ee = 1:2 %For both experiments
             exc_cpp2(g,s) = nanmean(dataP2(p2Idx(:),s))-baseline2;
             exc_cpp2_unc(g,s) = nanmean(data(p2Idx(:),s))-baseline2_uncorr(s,:); %Compute P2 amplitude on raw potentials
         end
+%         ignoredP(g) = NaN; 
+%         if any(isnan(data(1,:))), warning(['Oops! ' sum(isnan(data(1,:))) 'P excluded in G' num2str(g)]); 
+%         ignoredP(g) =  sum(isnan(data(1,:)));  end
+        
+        include = find(~isnan(data(1,:)));
         
         %Get grand-average amplitudes 
         baseline2 = nanmean(nanmean(dataP2(p2Idx(1)-0.5*sr:p2Idx(1)-0.4*sr,:),1),2);
@@ -236,16 +259,13 @@ for ee = 1:2 %For both experiments
         ga_exc_cpp1(g,:) = nanmean(nanmean(data(p1Idx(:),:),2),1);
         ga_exc_cpp2(g,:) = nanmean(nanmean(dataP2(p2Idx(:),:),2),1)-baseline2;
         ga_exc_cpp2_uncorr(g,:) = nanmean(nanmean(data(p2Idx(:),:),2),1)-nanmean(baseline2_uncorr);
-        
-        %Remove data after median RTs post dot offset,%conservative
-        endPoint = round([0.4 + exp.gapDur{exp.thisExp}(g) + 0.75+1.5]*sr);
-        
+                
         fill(plt.gapShades{exp.thisExp}(g+1,:)*ds,[ylims, flip(ylims)], thisCol, 'LineStyle','none','facealpha', 0.2); %Plot pulses in time
         hold on
         if plt.minusP1 == 1 %Subtract CPP-P1 based on longest gap?
             stdshade(dataP2(1.3*sr:endPoint,:)', plt.alpha, thisCol, '-',[],plt.smooth) %Plot ERP traces
         else
-            stdshade(data(1.3*sr:endPoint,:)', plt.alpha, thisCol, '-',[],plt.smooth) %Plot ERP traces
+            stdshade(ufdata(1.3*sr:endPoint,include)', plt.alpha, thisCol, '-',[],plt.smooth) %Plot ERP traces
         end
         
         hold on;
@@ -257,29 +277,29 @@ for ee = 1:2 %For both experiments
             permData.cpp{s} = data(1.3*sr:endPoint,s)';
         end
         exp.condDur = size(data(1.3*sr:endPoint,s),1)/sr;
-        cluster = GT_clusterCPP(exp,permData);
-        
-        clusterStats(g,:) = repmat(0,1,3000);
-        if isfield(cluster.stat1, 'posclusters')
-            for i = 1:size(cluster.stat1.posclusters,2)
-                if i >0
-                    
-                    if cluster.stat1.posclusters(i).prob < 0.05
-                        clusterStats(g,find(cluster.stat1.posclusterslabelmat == i)) = 1;
-                    end
-                end
-            end
-        end
-        if isfield(cluster.stat1, 'negclusters')
-            for i = 1:size(cluster.stat1.negclusters,2)
-                if i >0
-                    if cluster.stat1.negclusters(i).prob < 0.05
-                        clusterStats(g,find(cluster.stat1.negclusterslabelmat == i)) = 1;
-                    end
-                end
-            end
-        end
-        
+%         cluster = GT_clusterCPP(exp,permData);
+%         
+%         clusterStats(g,:) = repmat(0,1,3000);
+%         if isfield(cluster.stat1, 'posclusters')
+%             for i = 1:size(cluster.stat1.posclusters,2)
+%                 if i >0
+%                     
+%                     if cluster.stat1.posclusters(i).prob < 0.05
+%                         clusterStats(g,find(cluster.stat1.posclusterslabelmat == i)) = 1;
+%                     end
+%                 end
+%             end
+%         end
+%         if isfield(cluster.stat1, 'negclusters')
+%             for i = 1:size(cluster.stat1.negclusters,2)
+%                 if i >0
+%                     if cluster.stat1.negclusters(i).prob < 0.05
+%                         clusterStats(g,find(cluster.stat1.negclusterslabelmat == i)) = 1;
+%                     end
+%                 end
+%             end
+%         end
+%         
         hold on
         thisCol = plt.colors(1)% plt.colors(7,2);
         if g == 1; fill(plt.gapShades{exp.thisExp}(1,:)*ds,[ylims, flip(ylims)], thisCol{1}, 'LineStyle','none','facealpha', 0.2); end %Plot pulses in time
@@ -291,7 +311,7 @@ for ee = 1:2 %For both experiments
         xticks(round(plt.xticks(e,:)*ds));
         xticklabels(plt.xlabs(e,:)); set(gca, 'fontsize', plt.font)
         clear data;
-        %     xlim([1, endPoint-1.3*sr])
+            xlim([1, endPoint-1.3*sr])
     end
     ylabel('CPP (\muV/m^{2})')
     xlabel('Time (s)')
@@ -300,15 +320,15 @@ for ee = 1:2 %For both experiments
     f.Units = 'centimeters';
     f.OuterPosition = [0.25 0.35 11 9];
     
-    % Plot cluster stats
-    for g = 1:length(exp.gapDur{exp.thisExp}) %Longest gap only!
-        thisCol = plt.satPalettes{2,g};
-        
-        ypos = -2.5-0.5*g;
-        x = find(clusterStats(g,:)); hold on;
-        plot(x, repmat(ypos,1,length(x)), '*', 'color', thisCol, 'markersize',1.5); hold on;
-        
-    end
+%     % Plot cluster stats
+%     for g = 1:length(exp.gapDur{exp.thisExp}) %Longest gap only!
+%         thisCol = plt.satPalettes{2,g};
+%         
+%         ypos = -2.5-0.5*g;
+%         x = find(clusterStats(g,:)); hold on;
+%         plot(x, repmat(ypos,1,length(x)), '*', 'color', thisCol, 'markersize',1.5); hold on;
+%         
+%     end
     
     %Insert topography
     axes('position',[.1 .65 .25 .25]);
@@ -320,7 +340,7 @@ for ee = 1:2 %For both experiments
         'emarker2', {[chans],'*','k',3,1}); % To plot location of the selected channel/s
     caxis([-20 20]);
     
-    exportgraphics(f,[exp.figPath, 'GT_Fig2B_Exp' num2str(ee) '.tiff'], 'Resolution', 600)
+%     exportgraphics(f,[exp.figPath, 'GT_Fig2B_Exp' num2str(ee) '.tiff'], 'Resolution', 600)
     
     %t-test for CPP-P1 vs CPP-P2 max amplitudes, averaging across all non-zero gaps.
     gacpp1 = nanmean(exc_cpp1(2:end,:)); gacpp2 = nanmean(exc_cpp2(2:end,:)); gacpp2_unc = nanmean(exc_cpp2_unc(2:end,:))
@@ -334,7 +354,7 @@ for ee = 1:2 %For both experiments
     disp(['Exp. ratio:' num2str(nanmean(percCPP(2:end,exp.thisExp)))]) %Average over non-zero gaps, after removing P1 overlap
     disp(['Exp.  (unc) ratio:' num2str(nanmean(percCPP_unc(2:end,exp.thisExp)))]) %Average over non-zero gaps, on raw data
     
-    clear all;
+%     clear all;
 
 end
 

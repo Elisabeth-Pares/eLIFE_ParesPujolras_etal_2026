@@ -19,12 +19,11 @@ cfg_dat.dimord = 'chan_time';
 
 cfg.minnbchan   = [0];
 cfg.latency     = 'all'; %Analysis period
-cfg.channel     = 1;%%exp.centroParietal;%parietalFocus%exp.centroParietal;  %
+cfg.channel     = 1;
 cfg.avgoverchan = 'yes';
-cfg.avgovertime = 'no'; %no
+cfg.avgovertime = 'no';
 cfg.parameter   = 'values';
 cfg.method      = 'montecarlo';
-cfg.clusterthreshold    = 'parametric'%'nonparametric_common'; %EPP added
 
 cfg.statistic   = 'depsamplesT';  
 cfg.correctm    = 'cluster';

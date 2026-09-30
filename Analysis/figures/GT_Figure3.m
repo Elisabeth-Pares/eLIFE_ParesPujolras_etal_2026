@@ -64,6 +64,9 @@ fill([0.6*sr, 0.6*sr,0.8*sr,0.8*sr],[ylims, flip(ylims)], 'k', 'LineStyle','none
 for p1 = 1:2
     thisCol = flip(plt.satPalettes{1,p1*p1});
     stdshade(squeeze(nanmean(data_allC_p1(:,p1,round(1.3*sr):round(2.3*sr),:)))', plt.alpha, thisCol, lineType,[],plt.smooth) %Plot ERP traces
+            ignoredP(g) = NaN; 
+        if any(isnan(data(1,:))), warning(['Oops! ' sum(isnan(data(1,:))) 'P excluded in G' num2str(g)]); 
+        ignoredP(g) =  sum(isnan(data(1,:))); end
     hold on;
 end
 

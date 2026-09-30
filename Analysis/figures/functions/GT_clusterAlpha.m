@@ -23,7 +23,6 @@ cfg.avgoverchan = 'yes';
 cfg.avgovertime = 'no'; %no
 cfg.parameter   = 'values';
 cfg.method      = 'montecarlo';
-cfg.clusterthreshold    = 'parametric'%'nonparametric_common'; %EPP added
 
 cfg.statistic   = 'depsamplesT';  
 cfg.correctm    = 'cluster';
